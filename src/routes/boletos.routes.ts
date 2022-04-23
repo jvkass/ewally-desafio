@@ -7,9 +7,9 @@ const boletosRepository = new BoletosRepository();
 
 boletosRoutes.get("/:codboleto",(request,response)=>{
 
-    console.log('codboleto ',request.params.codboleto);
+    const infoBoleto = boletosRepository.findByCod(request.params.codboleto);
 
-    return response.json(request.params.codboleto);
+    return response.json(infoBoleto);
 })
 
 export {boletosRoutes};
