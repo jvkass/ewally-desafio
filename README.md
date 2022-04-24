@@ -13,4 +13,4 @@ Exemplo de linha digitável concessionária: 83620000000566780048100018097565731
 
 ### Como executar o projeto
 
-Para a execução do projeto basta executar o comando *yarn dev* e chamar as rotas no arquivo contido na raiz do projeto Ewally Imsomnia.json
+Para a execução do projeto basta executar o comando *yarn install* e posterior *yarn dev* e chamar as rotas no arquivo contido na raiz do projeto Ewally Imsomnia.json
