@@ -9,7 +9,7 @@ class BoletosRepository {
 
     findByCodDigitavel(codboleto: string): responseFindByCod {
 
-        if (codboleto.length != 47 && codboleto.length != 48 ) {
+        if (codboleto.length != 47 && codboleto.length != 48) {
 
             return {
                 valido: false,
@@ -19,16 +19,14 @@ class BoletosRepository {
                     expirationDate: null
                 }
             };  //verificador de posições codigo de barras
-        } else if (codboleto.length == 47){
-           return this.linhaDigitavelBancaria(codboleto);
-        } else if (codboleto.length == 48){
+        } else if (codboleto.length == 47) {
+            return this.linhaDigitavelBancaria(codboleto);
+        } else if (codboleto.length == 48) {
             return this.linhaDigitavelConcessionaria(codboleto);
         }
-
-     
     }
 
-    linhaDigitavelBancaria(codboleto:string): responseFindByCod{
+    linhaDigitavelBancaria(codboleto: string): responseFindByCod {
         let campos = [
             {
                 num: codboleto.substring(0, 9),
@@ -59,7 +57,7 @@ class BoletosRepository {
 
         valor = Number(Number(codboleto.substring(37, 47)).toFixed(2)) / 100;
 
-        let barCode = this.calculaBarra(codboleto);
+        let barCode = this.calculaBarraBancario(codboleto);
 
         return {
             valido: validaCampos,
@@ -69,20 +67,6 @@ class BoletosRepository {
                 expirationDate: vencimento
             }
         };
-    }
-
-    
-    linhaDigitavelConcessionaria(codboleto:string): responseFindByCod{
-        
-        
-        return {
-            valido: false,
-            infoBoleto: {
-                barCode: null,
-                amount: null,
-                expirationDate: null
-            }
-        }; 
     }
 
     modulo10(campo: string) {
@@ -109,7 +93,7 @@ class BoletosRepository {
         return DV;
     }
 
-    calculaBarra(codboleto) {
+    calculaBarraBancario(codboleto:string) {
 
         let barCode = '';
 
@@ -124,6 +108,83 @@ class BoletosRepository {
 
         return barCode;
     }
+
+    linhaDigitavelConcessionaria(codboleto: string): responseFindByCod {
+
+        const codMoeda = Number(codboleto[2]);
+
+        let modulo: any;
+
+        if (codMoeda === 6 || codMoeda === 7) {
+            modulo = this.modulo10;
+        } else if (codMoeda === 8 || codMoeda === 9) {
+            modulo = this.modulo11Arrecadacao;
+        } else {
+            return {
+                valido: false,
+                infoBoleto: {
+                    barCode: null,
+                    amount: null,
+                    expirationDate: null
+                }
+            };
+        }
+
+        const campos = Array.from({ length:4}, (v,index)=>{
+            const start = (11 * (index)) + index;
+            const end = (11 * (index + 1)) + index;
+            return {
+              num: codboleto.substring(start, end),
+              DV: codboleto.substring(end, end + 1),
+            };
+        });
+
+        const validaCampos = campos.every(campo => modulo(campo.num) === Number(campo.DV))
+
+        let barCode = this.calculaBarraConcessionaria(codboleto) ;
+
+        return {
+            valido: validaCampos,
+            infoBoleto: {
+                barCode: barCode,
+                amount: null,
+                expirationDate: null
+            }
+        };
+    }
+
+    modulo11Arrecadacao(campo: string) {
+        const cod = campo.split('').reverse();
+        let multiplicador = 2;
+        const soma = cod.reduce((acc, current) => {
+            const soma = Number(current) * multiplicador;
+            multiplicador = multiplicador === 9 ? 2 : multiplicador + 1;
+            return acc + soma;
+        }, 0);
+        const restoDiv = soma % 11;
+
+        if (restoDiv === 0 || restoDiv === 1) {
+            return 0;
+        }
+        if (restoDiv === 10) {
+            return 1;
+        }
+        const DV = 11 - restoDiv;
+        return DV;
+    }
+
+    calculaBarraConcessionaria(codboleto: string) {
+
+        let barCode = '';
+
+        for (let index = 0; index < 4; index++) {
+          const start = (11 * (index)) + index;
+          const end = (11 * (index + 1)) + index;
+          barCode += codboleto.substring(start, end);
+        }
+        return barCode;
+    }
+
 }
 
 export { BoletosRepository };
