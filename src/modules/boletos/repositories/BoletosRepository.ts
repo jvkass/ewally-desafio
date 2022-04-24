@@ -1,21 +1,24 @@
 import { Boleto } from "../model/Boleto";
 
+interface responseFindByCod {
+    valido: boolean;
+    infoBoleto: Boleto;
+}
 
 class BoletosRepository {
-    private boletos: Boleto[];
 
-    constructor() {
-        this.boletos = [];
-    }
-
-    list(): Boleto[] {
-        return this.boletos;
-    }
-
-    findByCod(codboleto: string): boolean {
+    findByCod(codboleto: string): responseFindByCod {
 
         if (codboleto.length != 47) {
-            return false;  //verificador de posições codigo de barras
+
+            return {
+                valido: false,
+                infoBoleto: {
+                    barCode: null,
+                    amount: null,
+                    expirationDate: null
+                }
+            };  //verificador de posições codigo de barras
         }
 
         let campos = [
@@ -36,26 +39,28 @@ class BoletosRepository {
         const validaCampos = campos.every(campo => this.modulo10(campo.num) === Number(campo.DV))
 
         let vencimento = codboleto.substring(33, 37);
-        console.log('venc: ', vencimento);
+
         let date = new Date('10/07/1997');
 
         date.setTime(date.getTime() + (Number(vencimento) * 24 * 60 * 60 * 1000))
 
-        vencimento = (("0" + (date.getDate())).slice(-2) + '/' + ("0" + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear())
+        vencimento = (date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2) + '-' + (date.getDate()))
 
-        console.log(vencimento);
 
         let valor: number;
 
         valor = Number(Number(codboleto.substring(37, 47)).toFixed(2)) / 100;
 
-        console.log(valor);
-
         let barCode = this.calculaBarra(codboleto);
 
-        console.log(barCode);
-
-        return validaCampos;
+        return {
+            valido: validaCampos,
+            infoBoleto: {
+                barCode: barCode,
+                amount: valor,
+                expirationDate: vencimento
+            }
+        };;
     }
 
     modulo10(campo: string) {
@@ -94,7 +99,7 @@ class BoletosRepository {
         barCode += codboleto.substring(4, 9); // Campo Livre Bloco 1
         barCode += codboleto.substring(10, 20); // Campo Livre Bloco 2
         barCode += codboleto.substring(21, 31); // Campo Livre Bloco 3
-    
+
         return barCode;
     }
 }
