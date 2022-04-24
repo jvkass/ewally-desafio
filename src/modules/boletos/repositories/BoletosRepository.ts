@@ -144,17 +144,23 @@ class BoletosRepository {
         let barCode = this.calculaBarraConcessionaria(codboleto) ;
 
         let valor: number;
+      
+        valor = Number(Number(barCode.substring(4, 15)).toFixed(2)) / 100;
 
-        valor = Number(Number(barCode.substring(5, 15)).toFixed(2)) / 100;
+        let vencimento = codboleto.substring(21, 27);
 
-        console.log(barCode.substring(21,25)+"-"+barCode.substring(25,27)+"-"+barCode.substring(27,29));
+        let date = new Date('10/07/1997');
+
+        date.setTime(date.getTime() + (Number(vencimento) * 24 * 60 * 60 * 1000))
+
+        vencimento = (date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2) + '-' +"0"+ (date.getDate()))
 
         return {
             valido: validaCampos,
             infoBoleto: {
                 barCode: barCode,
                 amount: valor,
-                expirationDate: null
+                expirationDate: vencimento
             }
         };
     }

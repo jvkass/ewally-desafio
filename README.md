@@ -9,4 +9,8 @@ O projeto consiste em aplicação backend, onde tem como vies identificar a linh
 
 Exemplo de linha digitável bancária: 21290001192110001210904475617405975870000002000
 
-Exemplo de linha digitável concessionária: 856900000584030100649158110347945609001374691358
+Exemplo de linha digitável concessionária: 836200000005667800481000180975657313001589636081
+
+### Como executar o projeto
+
+Para a execução do projeto basta executar o comando *yarn dev* e chamar as rotas no arquivo contido na raiz do projeto Ewally Imsomnia.json
