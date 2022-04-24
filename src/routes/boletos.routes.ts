@@ -5,11 +5,15 @@ const boletosRoutes = Router();
 
 const boletosRepository = new BoletosRepository();
 
-boletosRoutes.get("/:codboleto",(request,response)=>{
+boletosRoutes.get("/:codboleto", (request, response) => {
+    let resp: boolean;
+    resp = boletosRepository.findByCod(request.params.codboleto);
 
-    const infoBoleto = boletosRepository.findByCod(request.params.codboleto);
+    if(resp==false){
+        return response.status(400).json(resp);
+    }
 
-    return response.json(infoBoleto);
+    return response.status(200).json(resp);
 })
 
-export {boletosRoutes};
+export { boletosRoutes };

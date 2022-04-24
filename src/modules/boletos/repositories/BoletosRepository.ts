@@ -12,59 +12,55 @@ class BoletosRepository {
         return this.boletos;
     }
 
-    findByCod(codboleto: string): string {
-        const boleto = codboleto;
+    findByCod(codboleto: string): boolean {
 
-        if (codboleto.length != 44) {
-            return null;  //verificador de posições codigo de barras
+        if (codboleto.length != 47) {
+            return false;  //verificador de posições codigo de barras
         }
 
-        const campo1 = codboleto.substring(0, 4) + codboleto.substring(19, 20) + "." + codboleto.substring(20, 24);
-        const campo2 = codboleto.substring(24, 29) + "." + codboleto.substring(29, 34);
-        const campo3 = codboleto.substring(34, 39) + "." + codboleto.substring(39, 44);
-        const campo4 = codboleto.substring(4, 5);  // Digito verificador
-        const campo5 = codboleto.substring(5, 19); // Fator de vencimento e valor
+        let campos = [
+            {
+                num: codboleto.substring(0, 9),
+                DV: codboleto.substring(9, 10),
+            },
+            {
+                num: codboleto.substring(10, 20),
+                DV: codboleto.substring(20, 21),
+            },
+            {
+                num: codboleto.substring(21, 31),
+                DV: codboleto.substring(31, 32),
+            },
+        ];
 
+        const validaCampos = campos.every(campo => this.modulo10(campo.num) === Number(campo.DV))
 
-        return boleto;
+        return validaCampos;
     }
 
-    modulo10(cod: string) {
-        cod = cod.replace("[^0-9]", "");
-
-        let soma = 0;
-        let peso = 0;
-
-        let cont = cod.length - 1;
-
-        let multiplicacao = 0;
-
-        while (cont >= 0) {
-            multiplicacao = parseInt(cod.substring(cont, cont + 1)) * peso;
-
-            if (multiplicacao >= 10) {
-                multiplicacao = 1 + (multiplicacao - 10);
-            }
-
-            soma = soma + multiplicacao;
-
-            if (peso == 2) {
-                peso = 1;
-            } else {
-                peso = 2;
-            }
-
-            cont = cont - 1;
-        }
-
-        let digito = 10 - (soma % 10);
-
-        if (digito == 10) {
-            digito = 10;
-        }
-
-        return digito;
+    modulo10(campo:string) {
+        const cod = campo.split('').reverse();
+        const soma = cod.reduce((acc, current, index) => {
+            let soma = Number(current) * (((index + 1) % 2) + 1);
+            soma = (soma > 9 ? Math.trunc(soma / 10) + (soma % 10) : soma);
+            return acc + soma;
+        }, 0);
+        return (Math.ceil(soma / 10) * 10) - soma;
     }
+
+    modulo11Bancario(campo:string) {
+        const cod = campo.split('').reverse();
+        let multiplicador = 2;
+        const soma = cod.reduce((acc, current) => {
+          const soma = Number(current) * multiplicador;
+          multiplicador = multiplicador === 9 ? 2 : multiplicador + 1;
+          return acc + soma;
+        }, 0);
+        const restoDiv = soma % 11;
+        const DV = 11 - restoDiv;
+        if (DV === 0 || DV === 10 || DV === 11) return 1;
+        return DV;
+      }
 }
 
 export { BoletosRepository };
