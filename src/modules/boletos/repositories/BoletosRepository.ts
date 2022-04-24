@@ -36,12 +36,24 @@ class BoletosRepository {
         const validaCampos = campos.every(campo => this.modulo10(campo.num) === Number(campo.DV))
 
         let vencimento = codboleto.substring(33, 37);
-        console.log('venc: ',vencimento);
+        console.log('venc: ', vencimento);
         let date = new Date('10/07/1997');
 
         date.setTime(date.getTime() + (Number(vencimento) * 24 * 60 * 60 * 1000))
 
-        console.log(("0" + (date.getDate())).slice(-2) + '/' + ("0" + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear());
+        vencimento = (("0" + (date.getDate())).slice(-2) + '/' + ("0" + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear())
+
+        console.log(vencimento);
+
+        let valor: number;
+
+        valor = Number(Number(codboleto.substring(37, 47)).toFixed(2)) / 100;
+
+        console.log(valor);
+
+        let barCode = this.calculaBarra(codboleto);
+
+        console.log(barCode);
 
         return validaCampos;
     }
@@ -68,6 +80,22 @@ class BoletosRepository {
         const DV = 11 - restoDiv;
         if (DV === 0 || DV === 10 || DV === 11) return 1;
         return DV;
+    }
+
+    calculaBarra(codboleto) {
+
+        let barCode = '';
+
+        barCode += codboleto.substring(0, 3); // Identificação do banco
+        barCode += codboleto.substring(3, 4); // Código da moeda
+        barCode += codboleto.substring(32, 33); // DV
+        barCode += codboleto.substring(33, 37); // Fator Vencimento
+        barCode += codboleto.substring(37, 47); // Valor nominal
+        barCode += codboleto.substring(4, 9); // Campo Livre Bloco 1
+        barCode += codboleto.substring(10, 20); // Campo Livre Bloco 2
+        barCode += codboleto.substring(21, 31); // Campo Livre Bloco 3
+    
+        return barCode;
     }
 }
 
