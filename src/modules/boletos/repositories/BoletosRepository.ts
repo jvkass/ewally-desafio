@@ -35,10 +35,18 @@ class BoletosRepository {
 
         const validaCampos = campos.every(campo => this.modulo10(campo.num) === Number(campo.DV))
 
+        let vencimento = codboleto.substring(33, 37);
+        console.log('venc: ',vencimento);
+        let date = new Date('10/07/1997');
+
+        date.setTime(date.getTime() + (Number(vencimento) * 24 * 60 * 60 * 1000))
+
+        console.log(("0" + (date.getDate())).slice(-2) + '/' + ("0" + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear());
+
         return validaCampos;
     }
 
-    modulo10(campo:string) {
+    modulo10(campo: string) {
         const cod = campo.split('').reverse();
         const soma = cod.reduce((acc, current, index) => {
             let soma = Number(current) * (((index + 1) % 2) + 1);
@@ -48,19 +56,19 @@ class BoletosRepository {
         return (Math.ceil(soma / 10) * 10) - soma;
     }
 
-    modulo11Bancario(campo:string) {
+    modulo11Bancario(campo: string) {
         const cod = campo.split('').reverse();
         let multiplicador = 2;
         const soma = cod.reduce((acc, current) => {
-          const soma = Number(current) * multiplicador;
-          multiplicador = multiplicador === 9 ? 2 : multiplicador + 1;
-          return acc + soma;
+            const soma = Number(current) * multiplicador;
+            multiplicador = multiplicador === 9 ? 2 : multiplicador + 1;
+            return acc + soma;
         }, 0);
         const restoDiv = soma % 11;
         const DV = 11 - restoDiv;
         if (DV === 0 || DV === 10 || DV === 11) return 1;
         return DV;
-      }
+    }
 }
 
 export { BoletosRepository };
