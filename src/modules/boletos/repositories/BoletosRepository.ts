@@ -7,9 +7,9 @@ interface responseFindByCod {
 
 class BoletosRepository {
 
-    findByCod(codboleto: string): responseFindByCod {
+    findByCodDigitavel(codboleto: string): responseFindByCod {
 
-        if (codboleto.length != 47) {
+        if (codboleto.length != 47 && codboleto.length != 48 ) {
 
             return {
                 valido: false,
@@ -19,8 +19,16 @@ class BoletosRepository {
                     expirationDate: null
                 }
             };  //verificador de posições codigo de barras
+        } else if (codboleto.length == 47){
+           return this.linhaDigitavelBancaria(codboleto);
+        } else if (codboleto.length == 48){
+            return this.linhaDigitavelConcessionaria(codboleto);
         }
 
+     
+    }
+
+    linhaDigitavelBancaria(codboleto:string): responseFindByCod{
         let campos = [
             {
                 num: codboleto.substring(0, 9),
@@ -60,7 +68,21 @@ class BoletosRepository {
                 amount: valor,
                 expirationDate: vencimento
             }
-        };;
+        };
+    }
+
+    
+    linhaDigitavelConcessionaria(codboleto:string): responseFindByCod{
+        
+        
+        return {
+            valido: false,
+            infoBoleto: {
+                barCode: null,
+                amount: null,
+                expirationDate: null
+            }
+        }; 
     }
 
     modulo10(campo: string) {

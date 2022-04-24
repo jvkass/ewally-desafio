@@ -1,7 +1,7 @@
 import { Boleto } from "../model/Boleto";
 
 interface IBoletosRepositories {
-    findByCod(codboleto: string): Boleto;
+    findByCodDigitavel(codboleto: string): Boleto;
     list(): Boleto[];
 }
 

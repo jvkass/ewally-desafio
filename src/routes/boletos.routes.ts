@@ -7,7 +7,7 @@ const boletosRepository = new BoletosRepository();
 
 boletosRoutes.get("/:codboleto", (request, response) => {
    
-    let resp = boletosRepository.findByCod(request.params.codboleto);
+    let resp = boletosRepository.findByCodDigitavel(request.params.codboleto);
 
     if(resp.valido==false){
         return response.status(400);
