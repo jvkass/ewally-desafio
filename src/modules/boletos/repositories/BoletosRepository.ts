@@ -143,11 +143,17 @@ class BoletosRepository {
 
         let barCode = this.calculaBarraConcessionaria(codboleto) ;
 
+        let valor: number;
+
+        valor = Number(Number(barCode.substring(5, 15)).toFixed(2)) / 100;
+
+        console.log(barCode.substring(21,25)+"-"+barCode.substring(25,27)+"-"+barCode.substring(27,29));
+
         return {
             valido: validaCampos,
             infoBoleto: {
                 barCode: barCode,
-                amount: null,
+                amount: valor,
                 expirationDate: null
             }
         };
